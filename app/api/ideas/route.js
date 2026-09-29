@@ -2,6 +2,7 @@ import { ok, fail } from '@/lib/http';
 import { db } from '@/lib/db';
 import { generate, searchTrends } from '@/lib/ai';
 import { ideasPrompt } from '@/lib/prompts';
+import { getLang } from '@/lib/languages';
 
 export const maxDuration = 300;
 export const dynamic = 'force-dynamic';
@@ -23,7 +24,7 @@ export async function POST(req) {
     if (body.useTrends) {
       trends = await searchTrends(
         `Investiga en internet qué temas de ebooks e infoproductos se están vendiendo más en ${new Date().toLocaleDateString('es', { month: 'long', year: 'numeric' })} ` +
-          `en ${body.platform || 'Hotmart y Amazon KDP'} para el mercado ${body.market || 'hispano'}` +
+          `en ${body.platform || 'Hotmart y Amazon KDP'} para compradores que hablan ${getLang(body.language).ai}` +
           (body.niche ? `, dentro del nicho: ${body.niche}` : '') +
           '. Resume en viñetas los temas, problemas y tendencias con más demanda.'
       );
@@ -33,7 +34,7 @@ export async function POST(req) {
     const ideas = (data.ideas || data || []).filter((x) => x && x.title);
     if (!ideas.length) throw new Error('La IA no devolvió ideas. Intenta de nuevo.');
     ideas.sort((a, b) => (b.score || 0) - (a.score || 0));
-    const rows = ideas.map((d) => ({ data: { ...d, source: provider, trends: !!trends } }));
+    const rows = ideas.map((d) => ({ data: { ...d, language: getLang(body.language).code, source: provider, trends: !!trends } }));
     const { data: saved, error } = await db().from('ideas').insert(rows).select('*');
     if (error) throw new Error(error.message);
     return ok({ ideas: saved, provider, model, trends: !!trends });

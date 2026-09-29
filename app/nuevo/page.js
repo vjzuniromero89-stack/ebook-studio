@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/client';
+import { LANGUAGES } from '@/lib/languages';
 
 const THEMES = [['elegante', 'Elegante'], ['moderno', 'Moderno'], ['minimal', 'Minimal'], ['vibrante', 'Vibrante'], ['premium', 'Premium'], ['natural', 'Natural']];
 
@@ -9,7 +10,7 @@ export default function Nuevo() {
   const router = useRouter();
   const [providers, setProviders] = useState([]);
   const [f, setF] = useState({
-    topic: '', title: '', subtitle: '', author: '', audience: '', language: 'Español', tone: 'Cercano, motivador y práctico',
+    topic: '', title: '', subtitle: '', author: '', audience: '', language: 'es', tone: 'Cercano, motivador y práctico',
     chapters: 8, words: 1800, notes: '', theme: 'elegante', pageSize: '6x9', polish: false, engine: '', ideaId: null,
     imageStyle: 'ilustracion', imagesPerChapter: 1, aiCover: true,
   });
@@ -23,7 +24,7 @@ export default function Nuevo() {
         if (idea) {
           setF((p) => ({
             ...p, topic: `${idea.title}. ${idea.problem || ''} Enfoque: ${idea.angle || ''}`.trim(), title: idea.title, subtitle: idea.subtitle || '',
-            audience: idea.audience || '', ideaId: idea.ideaId,
+            audience: idea.audience || '', ideaId: idea.ideaId, language: idea.language || p.language,
           }));
         }
       }
@@ -61,7 +62,7 @@ export default function Nuevo() {
           <div className="field"><label>Nombre del autor</label><input value={f.author} onChange={set('author')} placeholder="Tu nombre o seudónimo" /></div>
           <div className="field"><label>Público objetivo</label><input value={f.audience} onChange={set('audience')} placeholder="Ej: mamás emprendedoras principiantes" /></div>
           <div className="grid g2" style={{ gap: 10 }}>
-            <div className="field"><label>Idioma</label><select value={f.language} onChange={set('language')}>{['Español', 'English', 'Português'].map((x) => <option key={x}>{x}</option>)}</select></div>
+            <div className="field"><label>Idioma</label><select value={f.language} onChange={set('language')}>{LANGUAGES.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}</select></div>
             <div className="field"><label>Tono</label><select value={f.tone} onChange={set('tone')}>{['Cercano, motivador y práctico', 'Profesional y experto', 'Sencillo, para principiantes', 'Inspirador y emocional', 'Directo y sin rodeos'].map((x) => <option key={x}>{x}</option>)}</select></div>
           </div>
           <div className="field"><label>Indicaciones extra (opcional)</label><textarea value={f.notes} onChange={set('notes')} placeholder="Ej: incluye plantillas, ejemplos de Nicaragua, un capítulo de errores comunes…" style={{ minHeight: 70 }} /></div>

@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/client';
+import { LANGUAGES } from '@/lib/languages';
 
 function Meter({ value, label, invert }) {
   const v = Math.max(0, Math.min(10, Number(value) || 0));
@@ -15,7 +16,7 @@ function Meter({ value, label, invert }) {
 
 export default function Ideas() {
   const router = useRouter();
-  const [form, setForm] = useState({ niche: '', market: 'Latinoamérica y hispanos en EE.UU. (español)', platform: 'Hotmart y Amazon KDP', count: 8, useTrends: true });
+  const [form, setForm] = useState({ niche: '', language: 'es', platform: 'Hotmart y Amazon KDP', count: 8, useTrends: true });
   const [ideas, setIdeas] = useState([]);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
@@ -39,7 +40,7 @@ export default function Ideas() {
   }
 
   function use(idea) {
-    sessionStorage.setItem('idea', JSON.stringify({ ...idea.data, ideaId: idea.id }));
+    sessionStorage.setItem('idea', JSON.stringify({ language: form.language, ...idea.data, ideaId: idea.id }));
     router.push('/nuevo?fromIdea=1');
   }
 
@@ -52,7 +53,7 @@ export default function Ideas() {
       <div className="card" style={{ marginBottom: 18 }}>
         <div className="grid g2">
           <div className="field"><label>Tu nicho o intereses (opcional)</label><input value={form.niche} onChange={set('niche')} placeholder="Ej: mecánica automotriz, finanzas personales, bordado…" /><div className="hint">Déjalo vacío para que la IA explore nichos variados.</div></div>
-          <div className="field"><label>Mercado e idioma</label><input value={form.market} onChange={set('market')} /></div>
+          <div className="field"><label>Idioma</label><select value={form.language} onChange={set('language')}>{LANGUAGES.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}</select></div>
           <div className="field"><label>Dónde vas a vender</label><input value={form.platform} onChange={set('platform')} /></div>
           <div className="field"><label>Cantidad de ideas</label><select value={form.count} onChange={set('count')}>{[5, 8, 10, 12].map((n) => <option key={n}>{n}</option>)}</select></div>
         </div>
